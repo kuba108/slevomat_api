@@ -1,6 +1,6 @@
 module SlevomatApi
   module Error
-    class DefaultError
+    class DefaultError < StandardError
 
       attr_reader :message
 

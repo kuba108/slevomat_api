@@ -1,10 +1,10 @@
 require 'faraday'
-require 'json'
+require 'faraday_middleware'
 
 module SlevomatApi
   class RequestMaker
 
-    API_HOST  = 'https://www.slevomat.cz/'.freeze
+    #API_HOST  = 'https://www.slevomat.cz/'.freeze
     HEADER_PARTNER_TOKEN = 'X-PartnerToken'.freeze
     HEADER_API_SECRET = 'X-ApiSecret'.freeze
     HEADER_USER_AGENT = 'User-Agent'.freeze
@@ -12,23 +12,25 @@ module SlevomatApi
     def initialize(client, timeout = 30)
       @client = client
       @timeout = timeout
+      @response_validator = ResponseValidator.new
     end
 
     def send_post_request(url, body = nil, options = {})
       request = Request.new(:post, url, build_header, body.to_json)
-      options = default_options.merge(options)
-      #raw_response = @client.send_request(request, options)
-      connection = create_connection(API_HOST, request.headers)
-      response = connection.post url, options
-      get_response(response)
+      #options = default_options.merge(options)
+      connection = create_connection(url, request.headers)
+      raw_response = connection.post
+      response = build_response(raw_response)
+      debugger
+      @response_validator.validate_response(response)
     end
 
     # Creates request object.
-    def get_response(raw_response, ignore_body = false)
+    def build_response(raw_response, ignore_body = false)
       if ignore_body
         Response.new(raw_response.status)
       else
-        Response.new(raw_response.status, parse_body(raw_response.body))
+        Response.new(raw_response.status, raw_response.body)
       end
     end
 
@@ -52,12 +54,6 @@ module SlevomatApi
         expect: false,
         timeout: @timeout
       }
-    end
-
-    def parse_body(body)
-      JSON.parse(body)
-    rescue
-      raise Error::ResponseParsing.new
     end
 
     def create_connection(url, headers)

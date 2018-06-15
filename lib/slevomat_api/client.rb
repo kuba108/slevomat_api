@@ -9,7 +9,6 @@ module SlevomatApi
       @api_url = api_url
       @version = version
       @test_api = test_api
-      @response_validator = ResponseValidator.new
     end
 
     def cancel_order(order_id, order_items, note = nil)
@@ -18,14 +17,12 @@ module SlevomatApi
         items: order_items,
         note: note
       }
-      response = RequestMaker.new(self).send_post_request(endpoint_url, body)
-      @response_validator.validate_response(response)
+      RequestMaker.new(self).send_post_request(endpoint_url, body)
     end
 
     def mark_pending(order_id)
       endpoint_url = build_endpoint_url(order_id, 'mark-pending')
-      response = RequestMaker.new(self).send_post_request(endpoint_url)
-      @response_validator.validate_response(response)
+      RequestMaker.new(self).send_post_request(endpoint_url)
     end
 
     def mark_en_route(order_id, auto_mark_delivered)
@@ -33,8 +30,7 @@ module SlevomatApi
       body = {
         autoMarkDelivered: auto_mark_delivered
       }
-      response = RequestMaker.new(self).send_post_request(endpoint_url, body)
-      @response_validator.validate_response(response)
+      RequestMaker.new(self).send_post_request(endpoint_url, body)
     end
 
     def mark_getting_ready_for_pickup(order_id, auto_mark_ready_for_pickup = false, auto_mark_delivered = false)
@@ -43,8 +39,7 @@ module SlevomatApi
         autoMarkDelivered: auto_mark_delivered,
         autoMarkReadyForPickup: auto_mark_ready_for_pickup
       }
-      response = RequestMaker.new(self).send_post_request(endpoint_url, body)
-      @response_validator.validate_response(response)
+      RequestMaker.new(self).send_post_request(endpoint_url, body)
     end
 
     def mark_ready_for_pickup(order_id, auto_mark_delivered = false)
@@ -52,14 +47,12 @@ module SlevomatApi
       body = {
         autoMarkDelivered: auto_mark_delivered
       }
-      response = RequestMaker.new(self).send_post_request(endpoint_url, body)
-      @response_validator.validate_response(response)
+      RequestMaker.new(self).send_post_request(endpoint_url, body)
     end
 
     def mark_delivered(order_id)
       endpoint_url = build_endpoint_url(order_id, 'mark-delivered')
-      response = RequestMaker.new(self).send_post_request(endpoint_url)
-      @response_validator.validate_response(response)
+      RequestMaker.new(self).send_post_request(endpoint_url)
     end
 
     def update_shipping_address(order_id, name, street, city, state, phone, postal_code, company = nil)
@@ -74,8 +67,7 @@ module SlevomatApi
       }
 
       endpoint_url = build_endpoint_url(order_id, 'update-shipping-address')
-      response = RequestMaker.new(self).send_post_request(endpoint_url, body)
-      @response_validator.validate_response(response)
+      RequestMaker.new(self).send_post_request(endpoint_url, body)
     end
 
     private
@@ -85,14 +77,8 @@ module SlevomatApi
     end
 
     def build_endpoint_url(order_id, api_action)
-      "#{@api_url}/#{api_version_url}/#{order_id}/#{api_action}"
+      "#{@api_url}/#{api_version_url}/order/#{order_id}/#{api_action}"
     end
-
-    # def initialize(attributes)
-    #   attributes.each do |attr_name, attr_value|
-    #     instance_variable_set "@#{attr_name}", attr_value
-    #   end
-    # end
 
   end
 end
