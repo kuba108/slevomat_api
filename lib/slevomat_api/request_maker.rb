@@ -21,7 +21,6 @@ module SlevomatApi
       connection = create_connection(url, request.headers)
       raw_response = connection.post
       response = build_response(raw_response)
-      debugger
       @response_validator.validate_response(response)
     end
 
