@@ -14,7 +14,7 @@ module SlevomatApi
       @timeout = timeout
     end
 
-    def send_post_request(url, options = {}, body = nil)
+    def send_post_request(url, body = nil, options = {})
       request = Request.new(:post, url, build_header, body.to_json)
       options = default_options.merge(options)
       #raw_response = @client.send_request(request, options)
