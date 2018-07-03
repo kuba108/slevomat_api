@@ -27,7 +27,7 @@ module SlevomatApi
     def parse_body(body)
       JSON.parse(body)
     rescue
-      raise Error::ResponseParsing.new
+      ""
     end
 
   end

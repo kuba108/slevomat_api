@@ -4,24 +4,22 @@ require 'faraday_middleware'
 module SlevomatApi
   class RequestMaker
 
-    #API_HOST  = 'https://www.slevomat.cz/'.freeze
-    HEADER_PARTNER_TOKEN = 'X-PartnerToken'.freeze
-    HEADER_API_SECRET = 'X-ApiSecret'.freeze
-    HEADER_USER_AGENT = 'User-Agent'.freeze
-
-    def initialize(client, timeout = 30)
-      @client = client
+    def initialize(partner_token, api_secret, timeout = 30)
+      @partner_token = partner_token
+      @api_secret = api_secret
       @timeout = timeout
       @response_validator = ResponseValidator.new
     end
 
-    def send_post_request(url, body = nil, options = {})
+    def send_post_request(url, body = nil)
       request = Request.new(:post, url, build_header, body.to_json)
-      #options = default_options.merge(options)
       connection = create_connection(url, request.headers)
-      raw_response = connection.post
+      raw_response = connection.post do |req|
+        req.body = request.body
+      end
       response = build_response(raw_response)
       @response_validator.validate_response(response)
+      true
     end
 
     # Creates request object.
@@ -38,9 +36,10 @@ module SlevomatApi
     # Builds HTTP header.
     def build_header
       {
-        'X-PartnerToken': @client.partner_token,
-        'X-ApiSecret': @client.api_secret,
-        'User-Agent': "SlevomatZboziApiClient/Ruby #{RUBY_VERSION}"
+        'X-PartnerToken': @partner_token,
+        'X-ApiSecret': @api_secret,
+        'User-Agent': "SlevomatZboziApiClient/Ruby #{RUBY_VERSION}",
+        'Content-Type': 'application/json'
       }
     end
 
